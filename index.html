@@ -522,8 +522,7 @@ function renderDebriefs(){
         <span class="debrief-date">${escapeHtml(d.dateFinished||'')}</span>
       </div>
       ${d.unpromptedRecall ? `<div class="debrief-field meta-row"><span class="meta-label">Recall</span><span class="meta-body">${escapeHtml(d.unpromptedRecall)}</span></div>` : ''}
-      ${d.addsToClaims ? `<div class="debrief-field meta-row"><span class="meta-label">Adds to</span><span class="meta-body">${escapeHtml(d.addsToClaims)}</span></div>` : ''}
-      ${d.newClaim ? `<div class="debrief-field meta-row"><span class="meta-label">New claim</span><span class="meta-body">${escapeHtml(d.newClaim)}</span></div>` : ''}
+      ${d.addsToClaims ? `<div class="debrief-field meta-row"><span class="meta-label">Mattered</span><span class="meta-body">${escapeHtml(d.addsToClaims)}</span></div>` : ''}
       ${d.willTest ? `<div class="debrief-field meta-row"><span class="meta-label">Will test</span><span class="meta-body">${escapeHtml(d.willTest)}</span></div>` : ''}
       ${d.verdict ? `<div class="debrief-verdict">${escapeHtml(d.verdict)}</div>` : ''}
     </div>
@@ -676,7 +675,7 @@ function openDebriefForm(id){
   overlay.innerHTML = `
     <div class="sheet">
       <h2>${existing ? 'Edit debrief' : 'Post-book debrief'}</h2>
-      <div class="sub">sit with it before you open this form</div>
+      <div class="sub">step back — the claims are already filed, this is what the book adds up to</div>
 
       <div class="field">
         <label>Book</label>
@@ -691,12 +690,8 @@ function openDebriefForm(id){
         <textarea id="dRecall" placeholder="What do I remember, without checking anything?">${existing?escapeHtml(existing.unpromptedRecall||''):''}</textarea>
       </div>
       <div class="field">
-        <label>Adds to claims</label>
-        <textarea id="dAdds" placeholder="Which existing claims does this support or contradict?">${existing?escapeHtml(existing.addsToClaims||''):''}</textarea>
-      </div>
-      <div class="field">
-        <label>New claim (be stingy)</label>
-        <textarea id="dNew" placeholder="Only if genuinely new">${existing?escapeHtml(existing.newClaim||''):''}</textarea>
+        <label>Which claims mattered</label>
+        <textarea id="dAdds" placeholder="Looking back, which claims from this book actually stuck, or turned out to matter more than they felt like at the time?">${existing?escapeHtml(existing.addsToClaims||''):''}</textarea>
       </div>
       <div class="field">
         <label>Will I test anything?</label>
@@ -737,7 +732,6 @@ function openDebriefForm(id){
       dateFinished: document.getElementById('dDate').value,
       unpromptedRecall: document.getElementById('dRecall').value.trim(),
       addsToClaims: document.getElementById('dAdds').value.trim(),
-      newClaim: document.getElementById('dNew').value.trim(),
       willTest: document.getElementById('dTest').value.trim(),
       verdict: document.getElementById('dVerdict').value.trim(),
       createdAt: existing ? existing.createdAt : Date.now()
