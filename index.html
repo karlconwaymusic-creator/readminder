@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#14181C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Readminder">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Readminder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-soft:#3A4655;
+    --paper:#E3E0C7;
+    --paper-light:#EDEBD9;
+    --desk:#14181C;
+    --desk-light:#1E252B;
+    --stamp-red:#A6403A;
+    --moss:#4B6355;
+    --brass:#AD8A52;
+    --grey:#8A8577;
+    --line:rgba(27,36,48,0.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--desk);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(255,255,255,0.02), transparent 40%);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    min-height:100vh;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 0 96px 0;
+  }
+  header.top{
+    padding:28px 20px 18px 20px;
+    position:sticky;
+    top:0;
+    background:var(--desk);
+    z-index:20;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .brand h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:28px;
+    color:var(--paper-light);
+    margin:0;
+    letter-spacing:0.01em;
+  }
+  .tagline{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin-top:4px;
+  }
+  .count-badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:rgba(237,235,217,0.5);
+  }
+  nav.tabs{
+    display:flex;
+    gap:0;
+    margin-top:20px;
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  nav.tabs button{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:rgba(237,235,217,0.55);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:11px 4px;
+    cursor:pointer;
+    transition:all 0.15s ease;
+  }
+  nav.tabs button.active{
+    background:var(--paper);
+    color:var(--ink);
+  }
+  nav.tabs button:not(.active):hover{
+    color:var(--paper-light);
+    background:rgba(255,255,255,0.05);
+  }
+  main{padding:20px 16px 0 16px;}
+  .empty{
+    color:rgba(237,235,217,0.4);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-align:center;
+    padding:60px 20px;
+    line-height:1.7;
+  }
+  .empty .big{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    color:rgba(237,235,217,0.75);
+    display:block;
+    margin-bottom:8px;
+  }
+  /* CARD */
+  .card{
+    background:var(--paper);
+    border-radius:2px;
+    padding:18px 18px 16px 18px;
+    margin-bottom:14px;
+    position:relative;
+    box-shadow:0 1px 0 rgba(255,255,255,0.5) inset, 0 6px 16px rgba(0,0,0,0.28);
+    cursor:pointer;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    left:0; top:14px; bottom:14px;
+    width:2px;
+    background:repeating-linear-gradient(180deg, var(--stamp-red) 0 6px, transparent 6px 12px);
+    opacity:0.55;
+  }
+  .card-inner{padding-left:10px;}
+  .claim-title{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:17px;
+    line-height:1.4;
+    margin:0 0 10px 0;
+    padding-right:70px;
+  }
+  .stamp{
+    position:absolute;
+    top:14px;
+    right:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:4px 8px;
+    border:1.5px solid;
+    border-radius:2px;
+    transform:rotate(4deg);
+    opacity:0.9;
+    white-space:nowrap;
+  }
+  .stamp.untested{color:var(--grey);border-color:var(--grey);}
+  .stamp.trying{color:var(--brass);border-color:var(--brass);}
+  .stamp.verified{color:var(--moss);border-color:var(--moss);}
+  .stamp.rejected{color:var(--stamp-red);border-color:var(--stamp-red);}
+  .meta-row{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    line-height:1.6;
+  }
+  .meta-label{
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-weight:700;
+    color:var(--stamp-red);
+    margin-right:6px;
+  }
+  .meta-body{white-space:pre-wrap;}
+  .take{
+    font-style:italic;
+    font-size:14.5px;
+    color:var(--ink);
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+    line-height:1.5;
+  }
+  .exp-list{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+  .exp-item{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    line-height:1.5;
+  }
+  .exp-date{color:var(--stamp-red);font-weight:700;}
+  /* DEBRIEF entries */
+  .debrief{
+    background:var(--paper);
+    border-radius:2px;
+    padding:16px 18px;
+    margin-bottom:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,0.5) inset, 0 6px 16px rgba(0,0,0,0.28);
+  }
+  .debrief-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .debrief-book{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:16px;
+  }
+  .debrief-date{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    color:var(--grey);
+  }
+  .debrief-field{margin-bottom:8px;}
+  .debrief-verdict{
+    font-style:italic;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+  }
+  /* FAB + forms */
+  .fab{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    width:56px;height:56px;
+    border-radius:50%;
+    background:var(--stamp-red);
+    color:var(--paper-light);
+    border:none;
+    font-size:28px;
+    line-height:1;
+    box-shadow:0 6px 20px rgba(0,0,0,0.4);
+    cursor:pointer;
+    z-index:30;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .fab:active{transform:scale(0.94);}
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(10,13,16,0.72);
+    z-index:40;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .sheet{
+    background:var(--paper-light);
+    width:100%;
+    max-width:640px;
+    max-height:88vh;
+    overflow-y:auto;
+    border-radius:12px 12px 0 0;
+    padding:22px 18px 30px 18px;
+  }
+  .sheet h2{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    margin:0 0 4px 0;
+  }
+  .sheet .sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--grey);
+    margin-bottom:18px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .field .hint{
+    font-family:'Source Serif 4', serif;
+    font-style:italic;
+    font-size:12px;
+    color:var(--grey);
+    margin-top:3px;
+  }
+  input[type=text], input[type=date], textarea, select{
+    width:100%;
+    font-family:'Source Serif 4', Georgia, serif;
+    font-size:15px;
+    padding:10px 11px;
+    border:1px solid rgba(27,36,48,0.25);
+    border-radius:4px;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:56px;line-height:1.4;}
+  select{font-family:'JetBrains Mono', monospace;font-size:13px;text-transform:uppercase;}
+  .status-picker{display:flex;gap:6px;flex-wrap:wrap;}
+  .status-picker button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    padding:8px 12px;
+    border-radius:3px;
+    border:1.5px solid rgba(27,36,48,0.25);
+    background:#fff;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .status-picker button.sel{
+    border-color:var(--ink);
+    background:var(--ink);
+    color:var(--paper-light);
+  }
+  .exp-add-row{display:flex;gap:8px;margin-top:8px;}
+  .exp-add-row input{flex:1;}
+  .exp-add-row button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    padding:0 14px;
+    border-radius:4px;
+    border:1px solid var(--ink);
+    background:transparent;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .exp-draft-item{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    padding:4px 0;
+    display:flex;
+    justify-content:space-between;
+  }
+  .exp-draft-item span.x{color:var(--stamp-red);cursor:pointer;font-weight:700;padding-left:10px;}
+  .sheet-actions{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+  }
+  .btn{
+    flex:1;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    padding:13px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn.save{background:var(--ink);color:var(--paper-light);}
+  .btn.cancel{background:transparent;color:var(--ink-soft);border:1px solid rgba(27,36,48,0.25);}
+  .btn.delete{background:transparent;color:var(--stamp-red);border:1px solid var(--stamp-red);flex:0 0 auto;padding:13px 16px;}
+  .toast{
+    position:fixed;
+    bottom:96px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--moss);
+    color:#fff;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.05em;
+    padding:10px 18px;
+    border-radius:20px;
+    z-index:50;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease;
+  }
+  .toast.show{opacity:1;}
+  .loading{
+    color:rgba(237,235,217,0.4);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-align:center;
+    padding:60px 20px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app" class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Readminder</h1>
+      <span class="count-badge" id="countBadge"></span>
+    </div>
+    <div class="tagline">your own personal thesis</div>
+    <nav class="tabs">
+      <button id="tabClaims" class="active">Claims</button>
+      <button id="tabDebriefs">Debriefs</button>
+    </nav>
+  </header>
+  <main id="main">
+    <div class="loading">loading…</div>
+  </main>
+</div>
+
+<button class="fab" id="fab">+</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const STATUSES = ['untested','trying','verified','rejected'];
+let claims = [];
+let debriefs = [];
+let view = 'claims';
+let editingClaimId = null;
+let editingDebriefId = null;
+let draftExperiments = [];
+
+const mainEl = document.getElementById('main');
+const countBadge = document.getElementById('countBadge');
+const fab = document.getElementById('fab');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), 1600);
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function escapeHtml(s){
+  if(!s) return '';
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadData(){
+  try{
+    const c = localStorage.getItem('readminder_claims');
+    claims = c ? JSON.parse(c) : [];
+  }catch(e){ claims = []; }
+  try{
+    const d = localStorage.getItem('readminder_debriefs');
+    debriefs = d ? JSON.parse(d) : [];
+  }catch(e){ debriefs = []; }
+  render();
+}
+
+async function saveClaims(){
+  try{
+    localStorage.setItem('readminder_claims', JSON.stringify(claims));
+  }catch(e){ console.error('save claims failed', e); showToast('save failed'); }
+}
+async function saveDebriefs(){
+  try{
+    localStorage.setItem('readminder_debriefs', JSON.stringify(debriefs));
+  }catch(e){ console.error('save debriefs failed', e); showToast('save failed'); }
+}
+
+document.getElementById('tabClaims').onclick = () => { view='claims'; updateTabs(); render(); };
+document.getElementById('tabDebriefs').onclick = () => { view='debriefs'; updateTabs(); render(); };
+
+function updateTabs(){
+  document.getElementById('tabClaims').classList.toggle('active', view==='claims');
+  document.getElementById('tabDebriefs').classList.toggle('active', view==='debriefs');
+}
+
+function render(){
+  countBadge.textContent = view==='claims' ? (claims.length + ' filed') : (debriefs.length + ' logged');
+  if(view==='claims'){
+    renderClaims();
+  } else {
+    renderDebriefs();
+  }
+}
+
+function renderClaims(){
+  if(claims.length===0){
+    mainEl.innerHTML = `<div class="empty"><span class="big">No claims filed yet.</span>Tap + to write your first testable belief.</div>`;
+    return;
+  }
+  const sorted = [...claims].sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+  mainEl.innerHTML = sorted.map(c => `
+    <div class="card" data-id="${c.id}">
+      <div class="stamp ${c.status}">${c.status}</div>
+      <div class="card-inner">
+        <p class="claim-title">${escapeHtml(c.title)}</p>
+        ${c.sources ? `<div class="meta-row"><span class="meta-label">Sources</span><span class="meta-body">${escapeHtml(c.sources)}</span></div>` : ''}
+        ${c.tensions ? `<div class="meta-row"><span class="meta-label">Tensions</span><span class="meta-body">${escapeHtml(c.tensions)}</span></div>` : ''}
+        ${c.experiments && c.experiments.length ? `<div class="exp-list">${c.experiments.map(e=>`<div class="exp-item"><span class="exp-date">${escapeHtml(e.date)}</span> — ${escapeHtml(e.text)}</div>`).join('')}</div>` : ''}
+        ${c.myTake ? `<div class="take">${escapeHtml(c.myTake)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+  mainEl.querySelectorAll('.card').forEach(el=>{
+    el.onclick = () => openClaimForm(el.dataset.id);
+  });
+}
+
+function renderDebriefs(){
+  if(debriefs.length===0){
+    mainEl.innerHTML = `<div class="empty"><span class="big">No debriefs yet.</span>Finish a book, tap +, sit with it for a few minutes.</div>`;
+    return;
+  }
+  const sorted = [...debriefs].sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+  mainEl.innerHTML = sorted.map(d => `
+    <div class="debrief" data-id="${d.id}">
+      <div class="debrief-head">
+        <span class="debrief-book">${escapeHtml(d.bookTitle)}</span>
+        <span class="debrief-date">${escapeHtml(d.dateFinished||'')}</span>
+      </div>
+      ${d.unpromptedRecall ? `<div class="debrief-field meta-row"><span class="meta-label">Recall</span><span class="meta-body">${escapeHtml(d.unpromptedRecall)}</span></div>` : ''}
+      ${d.addsToClaims ? `<div class="debrief-field meta-row"><span class="meta-label">Adds to</span><span class="meta-body">${escapeHtml(d.addsToClaims)}</span></div>` : ''}
+      ${d.newClaim ? `<div class="debrief-field meta-row"><span class="meta-label">New claim</span><span class="meta-body">${escapeHtml(d.newClaim)}</span></div>` : ''}
+      ${d.willTest ? `<div class="debrief-field meta-row"><span class="meta-label">Will test</span><span class="meta-body">${escapeHtml(d.willTest)}</span></div>` : ''}
+      ${d.verdict ? `<div class="debrief-verdict">${escapeHtml(d.verdict)}</div>` : ''}
+    </div>
+  `).join('');
+  mainEl.querySelectorAll('.debrief').forEach(el=>{
+    el.onclick = () => openDebriefForm(el.dataset.id);
+  });
+}
+
+fab.onclick = () => {
+  if(view==='claims') openClaimForm(null);
+  else openDebriefForm(null);
+};
+
+function closeSheet(){
+  const ov = document.querySelector('.overlay');
+  if(ov) ov.remove();
+  editingClaimId = null;
+  editingDebriefId = null;
+  draftExperiments = [];
+}
+
+/* ---------- CLAIM FORM ---------- */
+function openClaimForm(id){
+  editingClaimId = id;
+  const existing = id ? claims.find(c=>c.id===id) : null;
+  draftExperiments = existing && existing.experiments ? [...existing.experiments] : [];
+  const status = existing ? existing.status : 'untested';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="sheet">
+      <h2>${existing ? 'Edit claim' : 'New claim'}</h2>
+      <div class="sub">one sentence, your words, testable</div>
+
+      <div class="field">
+        <label>Claim</label>
+        <textarea id="fTitle" placeholder="e.g. I'm more likely to start something if it takes under 2 minutes">${existing?escapeHtml(existing.title):''}</textarea>
+      </div>
+      <div class="field">
+        <label>Sources</label>
+        <textarea id="fSources" placeholder="Book — how they frame it">${existing?escapeHtml(existing.sources||''):''}</textarea>
+      </div>
+      <div class="field">
+        <label>Tensions</label>
+        <textarea id="fTensions" placeholder="What pushes against this claim">${existing?escapeHtml(existing.tensions||''):''}</textarea>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <div class="status-picker" id="statusPicker">
+          ${STATUSES.map(s=>`<button type="button" data-s="${s}" class="${s===status?'sel':''}">${s}</button>`).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label>Experiments</label>
+        <div id="expDraftList">${draftExperiments.map((e,i)=>`<div class="exp-draft-item" data-i="${i}"><span>${escapeHtml(e.date)} — ${escapeHtml(e.text)}</span><span class="x" data-i="${i}">✕</span></div>`).join('')}</div>
+        <div class="exp-add-row">
+          <input type="text" id="expText" placeholder="What I tried and what happened">
+          <button type="button" id="expAddBtn">Add</button>
+        </div>
+        <div class="hint">Dated automatically when added.</div>
+      </div>
+      <div class="field">
+        <label>My take</label>
+        <textarea id="fTake" placeholder="Current position — rewrite this as it evolves">${existing?escapeHtml(existing.myTake||''):''}</textarea>
+      </div>
+
+      <div class="sheet-actions">
+        ${existing ? '<button class="btn delete" id="deleteBtn">Delete</button>' : ''}
+        <button class="btn cancel" id="cancelBtn">Cancel</button>
+        <button class="btn save" id="saveBtn">Save</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.onclick = (e) => { if(e.target===overlay) closeSheet(); };
+
+  let selectedStatus = status;
+  overlay.querySelectorAll('#statusPicker button').forEach(btn=>{
+    btn.onclick = () => {
+      selectedStatus = btn.dataset.s;
+      overlay.querySelectorAll('#statusPicker button').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+    };
+  });
+
+  function refreshExpList(){
+    document.getElementById('expDraftList').innerHTML = draftExperiments.map((e,i)=>`<div class="exp-draft-item" data-i="${i}"><span>${escapeHtml(e.date)} — ${escapeHtml(e.text)}</span><span class="x" data-i="${i}">✕</span></div>`).join('');
+    document.querySelectorAll('.exp-draft-item .x').forEach(x=>{
+      x.onclick = () => { draftExperiments.splice(parseInt(x.dataset.i),1); refreshExpList(); };
+    });
+  }
+  refreshExpList();
+
+  document.getElementById('expAddBtn').onclick = () => {
+    const t = document.getElementById('expText').value.trim();
+    if(!t) return;
+    const today = new Date().toISOString().slice(0,10);
+    draftExperiments.push({date:today, text:t});
+    document.getElementById('expText').value='';
+    refreshExpList();
+  };
+
+  document.getElementById('cancelBtn').onclick = closeSheet;
+
+  if(existing){
+    document.getElementById('deleteBtn').onclick = async () => {
+      claims = claims.filter(c=>c.id!==existing.id);
+      await saveClaims();
+      closeSheet();
+      render();
+      showToast('deleted');
+    };
+  }
+
+  document.getElementById('saveBtn').onclick = async () => {
+    const title = document.getElementById('fTitle').value.trim();
+    if(!title){ showToast('claim needs a sentence'); return; }
+    const payload = {
+      id: existing ? existing.id : uid(),
+      title,
+      sources: document.getElementById('fSources').value.trim(),
+      tensions: document.getElementById('fTensions').value.trim(),
+      status: selectedStatus,
+      experiments: draftExperiments,
+      myTake: document.getElementById('fTake').value.trim(),
+      createdAt: existing ? existing.createdAt : Date.now()
+    };
+    if(existing){
+      claims = claims.map(c=>c.id===existing.id?payload:c);
+    } else {
+      claims.push(payload);
+    }
+    await saveClaims();
+    closeSheet();
+    render();
+    showToast('saved');
+  };
+}
+
+/* ---------- DEBRIEF FORM ---------- */
+function openDebriefForm(id){
+  editingDebriefId = id;
+  const existing = id ? debriefs.find(d=>d.id===id) : null;
+  const today = new Date().toISOString().slice(0,10);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="sheet">
+      <h2>${existing ? 'Edit debrief' : 'Post-book debrief'}</h2>
+      <div class="sub">sit with it before you open this form</div>
+
+      <div class="field">
+        <label>Book</label>
+        <input type="text" id="dBook" value="${existing?escapeHtml(existing.bookTitle):''}" placeholder="Title">
+      </div>
+      <div class="field">
+        <label>Date finished</label>
+        <input type="date" id="dDate" value="${existing?existing.dateFinished:today}">
+      </div>
+      <div class="field">
+        <label>Unprompted recall</label>
+        <textarea id="dRecall" placeholder="What do I remember, without checking anything?">${existing?escapeHtml(existing.unpromptedRecall||''):''}</textarea>
+      </div>
+      <div class="field">
+        <label>Adds to claims</label>
+        <textarea id="dAdds" placeholder="Which existing claims does this support or contradict?">${existing?escapeHtml(existing.addsToClaims||''):''}</textarea>
+      </div>
+      <div class="field">
+        <label>New claim (be stingy)</label>
+        <textarea id="dNew" placeholder="Only if genuinely new">${existing?escapeHtml(existing.newClaim||''):''}</textarea>
+      </div>
+      <div class="field">
+        <label>Will I test anything?</label>
+        <textarea id="dTest" placeholder="Yes + what, or an honest no">${existing?escapeHtml(existing.willTest||''):''}</textarea>
+      </div>
+      <div class="field">
+        <label>Verdict</label>
+        <textarea id="dVerdict" placeholder="One line">${existing?escapeHtml(existing.verdict||''):''}</textarea>
+      </div>
+
+      <div class="sheet-actions">
+        ${existing ? '<button class="btn delete" id="deleteBtn">Delete</button>' : ''}
+        <button class="btn cancel" id="cancelBtn">Cancel</button>
+        <button class="btn save" id="saveBtn">Save</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.onclick = (e) => { if(e.target===overlay) closeSheet(); };
+  document.getElementById('cancelBtn').onclick = closeSheet;
+
+  if(existing){
+    document.getElementById('deleteBtn').onclick = async () => {
+      debriefs = debriefs.filter(d=>d.id!==existing.id);
+      await saveDebriefs();
+      closeSheet();
+      render();
+      showToast('deleted');
+    };
+  }
+
+  document.getElementById('saveBtn').onclick = async () => {
+    const bookTitle = document.getElementById('dBook').value.trim();
+    if(!bookTitle){ showToast('needs a title'); return; }
+    const payload = {
+      id: existing ? existing.id : uid(),
+      bookTitle,
+      dateFinished: document.getElementById('dDate').value,
+      unpromptedRecall: document.getElementById('dRecall').value.trim(),
+      addsToClaims: document.getElementById('dAdds').value.trim(),
+      newClaim: document.getElementById('dNew').value.trim(),
+      willTest: document.getElementById('dTest').value.trim(),
+      verdict: document.getElementById('dVerdict').value.trim(),
+      createdAt: existing ? existing.createdAt : Date.now()
+    };
+    if(existing){
+      debriefs = debriefs.map(d=>d.id===existing.id?payload:d);
+    } else {
+      debriefs.push(payload);
+    }
+    await saveDebriefs();
+    closeSheet();
+    render();
+    showToast('saved');
+  };
+}
+
+loadData();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(err => console.error('SW registration failed', err));
+  });
+}
+</script>
+</body>
+</html>
